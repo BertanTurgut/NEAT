@@ -1,14 +1,13 @@
 package NEAT;
 
+import java.sql.Time;
+import java.util.*;
+
 public class Connection {
     private Node inputNode;
     private Node outputNode;
     private float weight;
     private boolean enabled;
-
-    public void feedOutputNode() {
-        this.outputNode.setValue(this.outputNode.getValue() + this.inputNode.getValue() * this.weight);
-    }
 
     public Connection(Node input, Node output, float weight, boolean enabled) {
         this.inputNode = input;
@@ -22,6 +21,22 @@ public class Connection {
         this.outputNode = other.outputNode;
         this.weight = other.weight;
         this.enabled = other.enabled;
+    }
+
+    public void feedOutputNode() {
+        this.outputNode.setValue(this.outputNode.getValue() + this.inputNode.getValue() * this.weight);
+    }
+
+    public static ArrayList<Connection> connectAll(ArrayList<Node> inputNodes, ArrayList<Node> outputNodes, boolean randomWeight, float weight, boolean enabled) {
+        Random random = new Random(System.currentTimeMillis());
+        ArrayList<Connection> connections = new ArrayList<>();
+        for (Node in : inputNodes)
+            for (Node out : outputNodes) {
+                float weight_loc = (randomWeight) ? (float)(random.nextInt(100)) / 10 : weight;
+                Connection connection = new Connection(in, out, weight_loc, enabled);
+                connections.add(connection);
+            }
+        return connections;
     }
 
     public Node getInputNode() {

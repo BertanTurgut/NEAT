@@ -8,7 +8,7 @@ public class NeuralNetwork {
     private ArrayList<ArrayList<Node>> hiddenNodes;
     private ArrayList<ArrayList<Connection>> connections;
 
-    public void forwardFeed(float[] inputs) {
+    public void forwardFeed() {
         for (ArrayList<Connection> layer : this.connections)
             for (Connection connection : layer)
                 connection.getOutputNode().setValue(0);
