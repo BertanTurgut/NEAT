@@ -65,7 +65,12 @@ public class NeuralNetwork {
 
     @Override
     public String toString() {
-        String str = ";";
+        String str = "==========\n";
+        for (ArrayList<Connection> connectionLayer : this.connections) {
+            for (Connection connection : connectionLayer)
+                str += connection.getInputNode().getId() + " -(" + connection.getWeight() + ")-> " + connection.getOutputNode().getId() + "\n";
+            str += "==========\n";
+        }
         return str;
     }
 }

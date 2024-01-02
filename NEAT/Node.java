@@ -1,25 +1,25 @@
 package NEAT;
 
 public class Node {
-    private String name;
+    private int id;
     private float value;
 
-    public Node(String name, float value) {
-        this.name = name;
+    public Node(int id, float value) {
+        this.id = id;
         this.value = value;
     }
 
     public Node(Node other) {
-        this.name = other.getName();
+        this.id = other.getId();
         this.value = other.getValue();
     }
 
-    public String getName() {
-        return name;
+    public int getId() {
+        return id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public float getValue() {

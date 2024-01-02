@@ -6,6 +6,10 @@ import java.util.ArrayList;
 
 public class main {
     public static void main(String[] args) {
+        test0();
+    }
+
+    public static void test0() {
         ArrayList<Node> inputs = new ArrayList<>();
         ArrayList<Node> hidden1 =  new ArrayList<>();
         ArrayList<Node> hidden2 = new ArrayList<>();
@@ -14,14 +18,14 @@ public class main {
         hiddens.add(hidden2);
         ArrayList<Node> output = new ArrayList<>();
 
-        inputs.add(new Node("input", 3));
-        hidden1.add(new Node("h11", 0));
-        hidden1.add(new Node("h12", 0));
-        hidden1.add(new Node("h13", 0));
-        hidden2.add(new Node("h21", 0));
-        hidden2.add(new Node("h22", 0));
-        hidden2.add(new Node("h23", 0));
-        output.add(new Node("output", 0));
+        inputs.add(new Node(0, 3));
+        hidden1.add(new Node(1, 0));
+        hidden1.add(new Node(2, 0));
+        hidden1.add(new Node(3, 0));
+        hidden2.add(new Node(4, 0));
+        hidden2.add(new Node(5, 0));
+        hidden2.add(new Node(6, 0));
+        output.add(new Node(7, 0));
 
         ArrayList<ArrayList<Connection>> connections = new ArrayList<>();
         connections.add(Connection.connectAll(inputs, hidden1, true, 1, true));
@@ -30,6 +34,7 @@ public class main {
 
         NeuralNetwork nn = new NeuralNetwork(inputs, output, hiddens, connections);
         nn.forwardFeed();
-        System.out.println(nn.getOutputs().get(0).getValue());
+
+        System.out.println(nn);
     }
 }
