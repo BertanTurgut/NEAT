@@ -10,7 +10,7 @@ public class Gene {
         for (NodeGene gene : nodeGenome) {
             if (!createdNodeIds.contains(gene.getId())) {
                 createdNodeIds.add(gene.getId());
-                Node node = new Node(gene.getId(), 0);
+                Node node = new Node(gene.getId(), 0, 0);
                 nodes.add(node);
             }
         }
