@@ -4,18 +4,31 @@ import java.util.ArrayList;
 
 public class Gene {
     public static ArrayList<Gene> innovations = new ArrayList<>();
-    public static NeuralNetwork createNNFromGenome(ArrayList<NodeGene> nodeGenome, ArrayList<ConnectionGene> connectionGenome) {
+
+    public static NeuralNetwork createNNFromGenome(ArrayList<Gene> genome) {
         ArrayList<Node> nodes = new ArrayList<>();
-        ArrayList<Integer> createdNodeIds = new ArrayList<>();
-        for (NodeGene gene : nodeGenome) {
-            if (!createdNodeIds.contains(gene.getId())) {
-                createdNodeIds.add(gene.getId());
-                Node node = new Node(gene.getId(), 0, 0);
+        for (Gene gene : genome) {
+            if (gene.geneType == 0) {
+                Node node = new Node(((NodeGene)gene).getId(), 0);
                 nodes.add(node);
             }
         }
-
-        return null;
+        ArrayList<Connection> connections = new ArrayList<>();
+        for (Gene gene : genome) {
+            if (gene.geneType == 1) {
+                Node input = null;
+                Node output = null;
+                for (Node node : nodes) {
+                    if (node.getId() == ((ConnectionGene)gene).getInId())
+                        input = node;
+                    if (node.getId() == ((ConnectionGene)gene).getOutId())
+                        output = node;
+                }
+                Connection connection = new Connection(input, output, ((ConnectionGene)gene).getWeight(), ((ConnectionGene)gene).isEnabled());
+                connections.add(connection);
+            }
+        }
+        return new NeuralNetwork(nodes, connections);
     }
 
     private int innovationNumber;

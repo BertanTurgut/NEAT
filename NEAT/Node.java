@@ -9,10 +9,9 @@ public class Node {
     private ArrayList<Node> inputNodes;
     private ArrayList<Node> outputNodes;
 
-    public Node(int id, float value, int depth) {
+    public Node(int id, float value) {
         this.id = id;
         this.value = value;
-        this.depth = depth;
         this.inputNodes = new ArrayList<>();
         this.outputNodes = new ArrayList<>();
     }
