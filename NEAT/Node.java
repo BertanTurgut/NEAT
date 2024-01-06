@@ -21,10 +21,15 @@ public class Node {
             this.depth = 0;
             return;
         }
-        int min = this.inputNodes.get(0).getDepth() + 1;
+        int previousDepth = this.depth;
+        int min = this.inputNodes.get(0).depth + 1;
         for (Node inputNode : this.inputNodes)
-            min = Math.min(inputNode.depth + 1, min);
+            min = Math.max(inputNode.depth + 1, min);
         this.depth = min;
+        if (this.depth != previousDepth)
+            for (Node outputNode : this.outputNodes)
+                if (this.depth + 1 > outputNode.depth)
+                    outputNode.updateDepth();
     }
 
     public int getId() {
