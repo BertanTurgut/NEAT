@@ -1,4 +1,6 @@
 import NEAT.*;
+import Physics.MathService;
+import Physics.Vertice;
 
 import java.util.ArrayList;
 
@@ -7,7 +9,8 @@ public class main {
         //test0();
         //test1();
         //test2();
-        test3();
+        //test3();
+        test4();
     }
 
     /**
@@ -183,5 +186,33 @@ public class main {
         System.out.println("Test 3:\n#============#\n");
         System.out.println(nn);
         System.out.println("#============#\n");
+    }
+
+    /**
+     * test4 was tested on __ at __
+     */
+    public static void test4() {
+        Vertice vertex0 = new Vertice(7f, 3.3f);
+
+        Vertice boxVertex0 = new Vertice(0f, 0f);
+        Vertice boxVertex1 = new Vertice(0f, 3f);
+        Vertice boxVertex2 = new Vertice(3f, 3f);
+        Vertice boxVertex3 = new Vertice(3f, 0f);
+
+        ArrayList<Vertice> box0 = new ArrayList<>();
+        box0.add(boxVertex0);
+        box0.add(boxVertex1);
+        box0.add(boxVertex2);
+        box0.add(boxVertex3);
+
+        Vertice a = new Vertice(4.4f, 2.3f);
+        Vertice b = new Vertice(10.3f, 7.3f);
+
+        System.out.println("Test 4:\n#============#\n");
+        System.out.println(MathService.isVertexInsideBox(vertex0, box0));
+        System.out.println(MathService.getDistanceBetweenPoints(a, b));
+        System.out.println(Math.tan(Math.toRadians(-45)));
+        System.out.println("#============#\n");
+
     }
 }
