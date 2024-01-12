@@ -1,3 +1,4 @@
+import Graphics.TestAnimation;
 import NEAT.*;
 import Physics.MathService;
 import Physics.Vertice;
@@ -10,7 +11,8 @@ public class main {
         //test1();
         //test2();
         //test3();
-        test4();
+        //test4();
+        test5();
     }
 
     /**
@@ -189,9 +191,9 @@ public class main {
     }
 
     /**
-     * test4 was tested on __ at __
+     * test4 was tested on 12.01.2024 at 15.00
      */
-    public static void test4() {
+    /*public static void test4() {
         Vertice vertex0 = new Vertice(7f, 3.3f);
 
         Vertice boxVertex0 = new Vertice(0f, 0f);
@@ -214,5 +216,13 @@ public class main {
         System.out.println(Math.tan(Math.toRadians(-45)));
         System.out.println("#============#\n");
 
+    }*/
+
+    /**
+     * test5 was tested on __ at __
+     */
+    public static void test5() {
+        TestAnimation testAnimation = new TestAnimation();
+        testAnimation.startAnimation();
     }
 }

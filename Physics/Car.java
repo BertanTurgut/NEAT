@@ -5,24 +5,25 @@ import java.util.Arrays;
 
 public class Car {
     public static final float visionSensorPrecision = 0.1f; // vision sensor rays cannot make continuous measurement
-    public static final float visionSensorRange = 8;
-    public static final float accelerationDelta = 1;
-    public static final float accelerationLimit = 3;
-    public static final float speedLimit = 5;
+    public static final float visionSensorRange = 80;
+    public static final float accelerationDelta = 0.2f;
+    public static final float accelerationLimit = 1f;
+    public static final float speedLimit = 2;
     public static final float rotationDegreeDelta = 1;
+    public static final float rotationDegreeLimit = 3;
 
     public static ArrayList<Car> cars = new ArrayList<>();
 
     private int carId;
-    private Object body; // TODO: implement (+)
-    private Vertice centerOfMass; // TODO: implement (+)
+    private Object body;
+    private Vertice centerOfMass;
     private float width;
     private float length;
     private float[] visionSensors; // index n: nth sensor, counterclockwise increment starting from 0 degrees
     private float[] targetDistanceSensor; // index 0: x; index 1: y
     private boolean[] parkAreaCheckSensor; // index n: nth sensor, clockwise iteration starting from top left corner
 
-    public Car(float width, float length, float cmX, float cmY, float rotationDegree) {
+    public Car(float width, float length, float cmX, float cmY, float orientationDegree) {
         this.carId = cars.size();
         cars.add(this);
         this.width = width;
@@ -36,16 +37,17 @@ public class Car {
         Vertice backwardRight = new Vertice(cmX - length / 2, cmY - width / 2);
         Vertice backwardLeft = new Vertice(cmX - length / 2, cmY + width / 2);
         Vertice tempCM = new Vertice(cmX, cmY);
-        MathService.setRotationAroundPoint(tempCM, forwardLeft, rotationDegree);
-        MathService.setRotationAroundPoint(tempCM, forwardRight, rotationDegree);
-        MathService.setRotationAroundPoint(tempCM, backwardRight, rotationDegree);
-        MathService.setRotationAroundPoint(tempCM, backwardLeft, rotationDegree);
+        float structuralDegree = (float) Math.toDegrees(Math.atan(width / length));
+        MathService.setRotationAroundPoint(tempCM, forwardLeft, -orientationDegree + structuralDegree);
+        MathService.setRotationAroundPoint(tempCM, forwardRight, -orientationDegree - structuralDegree);
+        MathService.setRotationAroundPoint(tempCM, backwardRight, -orientationDegree - 180 + structuralDegree);
+        MathService.setRotationAroundPoint(tempCM, backwardLeft, -orientationDegree + 180 - structuralDegree);
         ArrayList<Vertice> vertices = new ArrayList<>();
         vertices.add(forwardLeft);
         vertices.add(forwardRight);
         vertices.add(backwardRight);
         vertices.add(backwardLeft);
-        this.body = new Object(vertices, rotationDegree);
+        this.body = new Object(vertices);
         this.centerOfMass = new Vertice(this.body.getCenterOfMass()[0], this.body.getCenterOfMass()[1]);
     }
 
@@ -93,7 +95,7 @@ public class Car {
 
     public void reverse() {
         this.body.setAcceleration(this.body.getAcceleration() - accelerationDelta);
-        if (this.body.getAcceleration() < accelerationLimit)
+        if (this.body.getAcceleration() < -accelerationLimit)
             this.body.setAcceleration(-accelerationLimit);
     }
 
@@ -104,17 +106,22 @@ public class Car {
 
     public void steerRight() {
         this.body.setRotation(this.body.getRotation() + rotationDegreeDelta);
+        if (this.body.getRotation() > rotationDegreeLimit)
+            this.body.setRotation(rotationDegreeLimit);
+
     }
 
     public void steerLeft() {
         this.body.setRotation(this.body.getRotation() - rotationDegreeDelta);
+        if (this.body.getRotation() < -rotationDegreeLimit)
+            this.body.setRotation(-rotationDegreeLimit);
     }
 
     @Override
     public String toString() {
         String str =  "Car " + this.carId + ":\nBody Object: " + this.body.getId() + "\nCenter Of Mass Coordinates: {" + this.body.getCenterOfMass()[0]
                 + ", " + this.body.getCenterOfMass()[1] + "}\nSpeed: " + this.body.getVelocity() + "\nAcceleration: " + this.body.getAcceleration() +
-                "\nRotation: " + this.body.getRotation() + "\nWidth: " + this.width + "\nHeight: " + this.length + "\nVision Sensors: {";
+                "\nRotation: " + this.body.getRotation() + "\nWidth: " + this.width + "\nLength: " + this.length + "\nVision Sensors: {";
         for (int i = 0; i < this.visionSensors.length; i++) {
             if (i < this.visionSensors.length - 1)
                 str += this.visionSensors[i] + ", ";

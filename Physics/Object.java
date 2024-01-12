@@ -3,6 +3,7 @@ package Physics;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
+// TODO: implement collision detection
 public class Object {
     public static ArrayList<Object> objects = new ArrayList<>();
 
@@ -14,7 +15,7 @@ public class Object {
     private float velocity;
     private float acceleration;
 
-    public Object(ArrayList<Vertice> vertices, float rotationDegree) {
+    public Object(ArrayList<Vertice> vertices) {
         this.id = objects.size();
         objects.add(this);
         this.vertices = new ArrayList<>(vertices);
@@ -27,24 +28,31 @@ public class Object {
         }
         this.centerOfMass[0] /= this.vertices.size();
         this.centerOfMass[1] /= this.vertices.size();
-        this.rotation = rotationDegree;
+        this.rotation = 0;
         this.velocity = 0;
         this.acceleration = 0;
     }
 
+    // TODO: correct the car controls
     public void update() {
         for (Vertice vertex : this.vertices) {
             float relativeX = vertex.x - this.centerOfMass[0];
             float relativeY = vertex.y - this.centerOfMass[1];
-            relativeX = (float) (relativeX * Math.cos(Math.toRadians(this.rotation)) - relativeY * Math.sin(Math.toRadians(this.rotation)));
-            relativeY = (float) (relativeY * Math.cos(Math.toRadians(this.rotation)) + relativeX * Math.sin(Math.toRadians(this.rotation)));
-            vertex.x = this.centerOfMass[0] + relativeX;
-            vertex.y = this.centerOfMass[1] + relativeY;
+            float relativeX2 = (float) (relativeX * Math.cos(Math.toRadians(this.rotation)) - relativeY * Math.sin(Math.toRadians(this.rotation)));
+            float relativeY2 = (float) (relativeY * Math.cos(Math.toRadians(this.rotation)) + relativeX * Math.sin(Math.toRadians(this.rotation)));
+            vertex.x = this.centerOfMass[0] + relativeX2;
+            vertex.y = this.centerOfMass[1] + relativeY2;
         }
         for (Vertice vertex : this.vertices) {
             vertex.x += this.velocity * Math.sin(Math.toRadians(this.rotation));
             vertex.y += this.velocity * Math.cos(Math.toRadians(this.rotation));
         }
+        for (Vertice vertex : this.vertices) {
+            this.centerOfMass[0] += vertex.x;
+            this.centerOfMass[1] += vertex.y;
+        }
+        this.centerOfMass[0] /= this.vertices.size();
+        this.centerOfMass[1] /= this.vertices.size();
         this.velocity += this.acceleration;
         if (this.velocity > Car.speedLimit)
             this.velocity = Car.speedLimit;
@@ -100,10 +108,6 @@ public class Object {
 
     public void setRotation(float rotation) {
         this.rotation = rotation;
-        if (rotation > 360)
-            this.rotation -= 360;
-        else if (rotation < -360)
-            this.rotation += 360;
     }
 
     public float getVelocity() {
