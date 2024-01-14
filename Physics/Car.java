@@ -6,24 +6,22 @@ import java.util.Arrays;
 public class Car {
     public static final float visionSensorPrecision = 0.1f; // vision sensor rays cannot make continuous measurement
     public static final float visionSensorRange = 80;
-    public static final float accelerationDelta = 0.2f;
-    public static final float accelerationLimit = 1f;
-    public static final float speedLimit = 2;
-    public static final float rotationDegreeDelta = 1;
-    public static final float rotationDegreeLimit = 3;
+    public static final float acceleration = 0.25f;
+    public static final float speedLimit = 0.75f;
+    public static final float rotationDegreeDelta = 2;
 
     public static ArrayList<Car> cars = new ArrayList<>();
+    public static ArrayList<Object> ignore = new ArrayList<>(); // ignore other cars physically during simulations
 
     private int carId;
     private Object body;
-    private Vertice centerOfMass;
     private float width;
     private float length;
     private float[] visionSensors; // index n: nth sensor, counterclockwise increment starting from 0 degrees
     private float[] targetDistanceSensor; // index 0: x; index 1: y
     private boolean[] parkAreaCheckSensor; // index n: nth sensor, clockwise iteration starting from top left corner
 
-    public Car(float width, float length, float cmX, float cmY, float orientationDegree) {
+    public Car(float width, float length, float cmX, float cmY, float rotation) {
         this.carId = cars.size();
         cars.add(this);
         this.width = width;
@@ -38,31 +36,31 @@ public class Car {
         Vertice backwardLeft = new Vertice(cmX - length / 2, cmY + width / 2);
         Vertice tempCM = new Vertice(cmX, cmY);
         float structuralDegree = (float) Math.toDegrees(Math.atan(width / length));
-        MathService.setRotationAroundPoint(tempCM, forwardLeft, -orientationDegree + structuralDegree);
-        MathService.setRotationAroundPoint(tempCM, forwardRight, -orientationDegree - structuralDegree);
-        MathService.setRotationAroundPoint(tempCM, backwardRight, -orientationDegree - 180 + structuralDegree);
-        MathService.setRotationAroundPoint(tempCM, backwardLeft, -orientationDegree + 180 - structuralDegree);
+        MathService.setRotationAroundPoint(tempCM, forwardLeft, rotation + structuralDegree);
+        MathService.setRotationAroundPoint(tempCM, forwardRight, rotation - structuralDegree);
+        MathService.setRotationAroundPoint(tempCM, backwardRight, rotation + 180 + structuralDegree);
+        MathService.setRotationAroundPoint(tempCM, backwardLeft, rotation + 180 - structuralDegree);
         ArrayList<Vertice> vertices = new ArrayList<>();
         vertices.add(forwardLeft);
         vertices.add(forwardRight);
         vertices.add(backwardRight);
         vertices.add(backwardLeft);
-        this.body = new Object(vertices);
-        this.centerOfMass = new Vertice(this.body.getCenterOfMass()[0], this.body.getCenterOfMass()[1]);
+        this.body = new Object(vertices, rotation);
+        ignore.add(this.body);
     }
 
     public void updateVisionSensors() {
         float degreeIterator = this.body.getRotation();
         for (int i = 0; i < this.visionSensors.length; i++) {
-            float x = (float) (this.centerOfMass.x + Math.cos(Math.toRadians(degreeIterator)) * visionSensorRange);
-            float y = (float) (this.centerOfMass.y + Math.sin(Math.toRadians(degreeIterator)) * visionSensorRange);
+            float x = (float) (this.body.getCenterOfMass().x + Math.cos(Math.toRadians(degreeIterator)) * visionSensorRange);
+            float y = (float) (this.body.getCenterOfMass().y + Math.sin(Math.toRadians(degreeIterator)) * visionSensorRange);
             Vertice rayEnd = new Vertice(x, y);
             degreeIterator += 22.5f;
             for (Object object : Object.objects) {
-                if (!this.body.getIgnore().contains(object)) {
-                    Vertice intersection = MathService.getFirstIntersectionPoint(this.centerOfMass, rayEnd, object, visionSensorPrecision);
+                if (!ignore.contains(object)) {
+                    Vertice intersection = MathService.getFirstIntersectionPoint(this.body.getCenterOfMass(), rayEnd, object, visionSensorPrecision);
                     if (intersection != null)
-                        this.visionSensors[i] = MathService.getDistanceBetweenPoints(this.centerOfMass, rayEnd);
+                        this.visionSensors[i] = MathService.getDistanceBetweenPoints(this.body.getCenterOfMass(), rayEnd);
                     else
                         this.visionSensors[i] = visionSensorRange;
                 }
@@ -78,8 +76,8 @@ public class Car {
         }
         parkingPlotCM_X /= parkingPlot.size();
         parkingPlotCM_Y /= parkingPlot.size();
-        this.targetDistanceSensor[0] = parkingPlotCM_X - this.centerOfMass.x;
-        this.targetDistanceSensor[1] = parkingPlotCM_Y - this.centerOfMass.y;
+        this.targetDistanceSensor[0] = parkingPlotCM_X - this.body.getCenterOfMass().x;
+        this.targetDistanceSensor[1] = parkingPlotCM_Y - this.body.getCenterOfMass().y;
     }
 
     public void updateAreaCheckSensor(ArrayList<Vertice> parkingPlot) {
@@ -88,15 +86,15 @@ public class Car {
     }
 
     public void gas() {
-        this.body.setAcceleration(this.body.getAcceleration() + accelerationDelta);
-        if (this.body.getAcceleration() > accelerationLimit)
-            this.body.setAcceleration(accelerationLimit);
+        this.body.setVelocity(this.body.getVelocity() + acceleration);
+        if (this.body.getVelocity() > speedLimit)
+            this.body.setVelocity(speedLimit);
     }
 
     public void reverse() {
-        this.body.setAcceleration(this.body.getAcceleration() - accelerationDelta);
-        if (this.body.getAcceleration() < -accelerationLimit)
-            this.body.setAcceleration(-accelerationLimit);
+        this.body.setVelocity(this.body.getVelocity() - acceleration);
+        if (this.body.getVelocity() < -speedLimit)
+            this.body.setVelocity(-speedLimit);
     }
 
     public void brake() {
@@ -105,22 +103,23 @@ public class Car {
     }
 
     public void steerRight() {
-        this.body.setRotation(this.body.getRotation() + rotationDegreeDelta);
-        if (this.body.getRotation() > rotationDegreeLimit)
-            this.body.setRotation(rotationDegreeLimit);
-
+        if (this.body.getVelocity() > 0)
+            this.body.setRotation(this.body.getRotation() - rotationDegreeDelta);
+        else if (this.body.getVelocity() < 0)
+            this.body.setRotation(this.body.getRotation() + rotationDegreeDelta);
     }
 
     public void steerLeft() {
-        this.body.setRotation(this.body.getRotation() - rotationDegreeDelta);
-        if (this.body.getRotation() < -rotationDegreeLimit)
-            this.body.setRotation(-rotationDegreeLimit);
+        if (this.body.getVelocity() > 0)
+            this.body.setRotation(this.body.getRotation() + rotationDegreeDelta);
+        else if (this.body.getVelocity() < 0)
+            this.body.setRotation(this.body.getRotation() - rotationDegreeDelta);
     }
 
     @Override
     public String toString() {
-        String str =  "Car " + this.carId + ":\nBody Object: " + this.body.getId() + "\nCenter Of Mass Coordinates: {" + this.body.getCenterOfMass()[0]
-                + ", " + this.body.getCenterOfMass()[1] + "}\nSpeed: " + this.body.getVelocity() + "\nAcceleration: " + this.body.getAcceleration() +
+        String str =  "Car " + this.carId + ":\nBody Object: " + this.body.getId() + "\nCenter Of Mass Coordinates: {" + this.body.getCenterOfMass().x
+                + ", " + this.body.getCenterOfMass().y + "}\nSpeed: " + this.body.getVelocity() + "\nAcceleration: " + this.body.getAcceleration() +
                 "\nRotation: " + this.body.getRotation() + "\nWidth: " + this.width + "\nLength: " + this.length + "\nVision Sensors: {";
         for (int i = 0; i < this.visionSensors.length; i++) {
             if (i < this.visionSensors.length - 1)
@@ -145,10 +144,6 @@ public class Car {
 
     public Object getBody() {
         return body;
-    }
-
-    public Vertice getCenterOfMass() {
-        return centerOfMass;
     }
 
     public float getWidth() {

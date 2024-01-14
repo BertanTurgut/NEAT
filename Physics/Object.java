@@ -2,6 +2,7 @@ package Physics;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Objects;
 
 // TODO: implement collision detection
 public class Object {
@@ -9,62 +10,54 @@ public class Object {
 
     private int id;
     private ArrayList<Vertice> vertices; // vertices must be in sequantial order
-    private ArrayList<Object> ignore; // TODO: objects' ignore lists will be filled when the car agents are created
-    private float[] centerOfMass; // index 0: x; index 1: y
+    private Vertice centerOfMass; // index 0: x; index 1: y
     private float rotation; // in degrees
     private float velocity;
     private float acceleration;
 
-    public Object(ArrayList<Vertice> vertices) {
+    public Object(ArrayList<Vertice> vertices, float rotation) {
         this.id = objects.size();
         objects.add(this);
         this.vertices = new ArrayList<>(vertices);
-        this.ignore = new ArrayList<>();
-        this.ignore.add(this);
-        this.centerOfMass = new float[] {0, 0};
+        this.centerOfMass = new Vertice(0, 0);
         for (Vertice vertex : this.vertices) {
-            this.centerOfMass[0] += vertex.x;
-            this.centerOfMass[1] += vertex.y;
+            this.centerOfMass.x += vertex.x;
+            this.centerOfMass.y += vertex.y;
         }
-        this.centerOfMass[0] /= this.vertices.size();
-        this.centerOfMass[1] /= this.vertices.size();
-        this.rotation = 0;
+        this.centerOfMass.x /= this.vertices.size();
+        this.centerOfMass.y /= this.vertices.size();
+        this.rotation = rotation;
         this.velocity = 0;
         this.acceleration = 0;
     }
 
-    // TODO: correct the car controls
     public void update() {
+        float width = MathService.getDistanceBetweenPoints(this.vertices.get(0), this.vertices.get(1));
+        float length = MathService.getDistanceBetweenPoints(this.vertices.get(1), this.vertices.get(2));
+        float structuralDegree = (float) Math.toDegrees(Math.atan(width / length));
+        MathService.setRotationAroundPoint(this.centerOfMass, this.vertices.get(0), rotation + structuralDegree);
+        MathService.setRotationAroundPoint(this.centerOfMass, this.vertices.get(1), rotation - structuralDegree);
+        MathService.setRotationAroundPoint(this.centerOfMass, this.vertices.get(2), rotation + 180 + structuralDegree);
+        MathService.setRotationAroundPoint(this.centerOfMass, this.vertices.get(3), rotation + 180 - structuralDegree);
         for (Vertice vertex : this.vertices) {
-            float relativeX = vertex.x - this.centerOfMass[0];
-            float relativeY = vertex.y - this.centerOfMass[1];
-            float relativeX2 = (float) (relativeX * Math.cos(Math.toRadians(this.rotation)) - relativeY * Math.sin(Math.toRadians(this.rotation)));
-            float relativeY2 = (float) (relativeY * Math.cos(Math.toRadians(this.rotation)) + relativeX * Math.sin(Math.toRadians(this.rotation)));
-            vertex.x = this.centerOfMass[0] + relativeX2;
-            vertex.y = this.centerOfMass[1] + relativeY2;
+            vertex.x += this.velocity * Math.cos(Math.toRadians(this.rotation));
+            vertex.y += this.velocity * Math.sin(Math.toRadians(this.rotation));
         }
+        this.centerOfMass.x = 0;
+        this.centerOfMass.y = 0;
         for (Vertice vertex : this.vertices) {
-            vertex.x += this.velocity * Math.sin(Math.toRadians(this.rotation));
-            vertex.y += this.velocity * Math.cos(Math.toRadians(this.rotation));
+            this.centerOfMass.x += vertex.x;
+            this.centerOfMass.y += vertex.y;
         }
-        for (Vertice vertex : this.vertices) {
-            this.centerOfMass[0] += vertex.x;
-            this.centerOfMass[1] += vertex.y;
-        }
-        this.centerOfMass[0] /= this.vertices.size();
-        this.centerOfMass[1] /= this.vertices.size();
-        this.velocity += this.acceleration;
-        if (this.velocity > Car.speedLimit)
-            this.velocity = Car.speedLimit;
-        else if (this.velocity < -Car.speedLimit)
-            this.velocity = -Car.speedLimit;
-
+        this.centerOfMass.x /= this.getVertices().size();
+        this.centerOfMass.y /= this.getVertices().size();
+        this.acceleration = 0;
     }
 
     @Override
     public String toString() {
-        return "Object " + this.id + ":\nCenter Of Mass Coordinates: {" + this.centerOfMass[0]
-                + ", " + this.centerOfMass[1] + "}\nSpeed: " + this.velocity + "\nAcceleration: " + this.acceleration +
+        return "Object " + this.id + ":\nCenter Of Mass Coordinates: {" + this.centerOfMass.x
+                + ", " + this.centerOfMass.y + "}\nSpeed: " + this.velocity + "\nAcceleration: " + this.acceleration +
                 "\nRotation: " + this.rotation;
     }
 
@@ -83,22 +76,18 @@ public class Object {
     public void setVertices(ArrayList<Vertice> vertices) {
         this.vertices = vertices;
         for (Vertice vertex : this.vertices) {
-            this.centerOfMass[0] += vertex.x;
-            this.centerOfMass[1] += vertex.y;
+            this.centerOfMass.x += vertex.x;
+            this.centerOfMass.y += vertex.y;
         }
-        this.centerOfMass[0] /= this.vertices.size();
-        this.centerOfMass[1] /= this.vertices.size();
+        this.centerOfMass.x /= this.vertices.size();
+        this.centerOfMass.y /= this.vertices.size();
     }
 
-    public ArrayList<Object> getIgnore() {
-        return ignore;
-    }
-
-    public float[] getCenterOfMass() {
+    public Vertice getCenterOfMass() {
         return centerOfMass;
     }
 
-    public void setCenterOfMass(float[] centerOfMass) {
+    public void setCenterOfMass(Vertice centerOfMass) {
         this.centerOfMass = centerOfMass;
     }
 
