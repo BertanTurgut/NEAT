@@ -41,7 +41,10 @@ public class MathService {
     public static Vertice getFirstIntersectionPoint(Vertice start, Vertice end, Object object, float precision) {
         Vertice iteratorVertex = new Vertice(start.x, start.y);
         float radian = (float) Math.atan((end.y - start.y) / (end.x - start.x));
-        while (!isVertexInsideBox(iteratorVertex, object.getVertices()) && Math.abs(iteratorVertex.x - start.x) < Math.abs(end.x - start.x)) {
+        if (end.x - start.x < 0)
+            radian += Math.toRadians(180);
+        while (!isVertexInsideBox(iteratorVertex, object.getVertices()) && MathService.getDistanceBetweenPoints(start, iteratorVertex)
+                < MathService.getDistanceBetweenPoints(start, end)) {
             iteratorVertex.x += Math.cos(radian) * precision;
             iteratorVertex.y += Math.sin(radian) * precision;
         }

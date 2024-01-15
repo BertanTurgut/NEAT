@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Car {
-    public static final float visionSensorPrecision = 2f; // vision sensor rays cannot make continuous measurement
+    public static final float visionSensorPrecision = 0.01f; // vision sensor rays cannot make continuous measurement
     public static final float visionSensorRange = 100;
     public static final float acceleration = 0.2f;
     public static final float speedLimit = 0.75f;
@@ -58,7 +58,6 @@ public class Car {
         this.updateAreaCheckSensor(parkPlot);
     }
 
-    // TODO: correct updateVisionSensors()
     public void updateVisionSensors() {
         float degreeIterator = this.body.getRotation();
         for (int i = 0; i < this.visionSensors.length; i++) {
