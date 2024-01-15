@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Car {
-    public static final float visionSensorPrecision = 0.1f; // vision sensor rays cannot make continuous measurement
-    public static final float visionSensorRange = 80;
-    public static final float acceleration = 0.25f;
+    public static final float visionSensorPrecision = 2f; // vision sensor rays cannot make continuous measurement
+    public static final float visionSensorRange = 100;
+    public static final float acceleration = 0.2f;
     public static final float speedLimit = 0.75f;
     public static final float rotationDegreeDelta = 2;
 
@@ -18,6 +18,7 @@ public class Car {
     private float width;
     private float length;
     private float[] visionSensors; // index n: nth sensor, counterclockwise increment starting from 0 degrees
+    private Vertice[] visionSensorDetections;
     private float[] targetDistanceSensor; // index 0: x; index 1: y
     private boolean[] parkAreaCheckSensor; // index n: nth sensor, clockwise iteration starting from top left corner
 
@@ -27,6 +28,7 @@ public class Car {
         this.width = width;
         this.length = length;
         this.visionSensors = new float[16]; // 16 sensors, 22.5 degrees between each ray, sequantial order starting from 0 degrees iterating counterclockwise
+        this.visionSensorDetections = new Vertice[16];
         Arrays.fill(this.visionSensors, visionSensorRange);
         this.targetDistanceSensor = new float[] {0, 0};
         this.parkAreaCheckSensor = new boolean[] {false, false, false, false};
@@ -49,20 +51,32 @@ public class Car {
         ignore.add(this.body);
     }
 
+    public void update(ArrayList<Vertice> parkPlot) {
+        this.body.update();
+        this.updateVisionSensors();
+        this.updateTargetDistanceSensor(parkPlot);
+        this.updateAreaCheckSensor(parkPlot);
+    }
+
+    // TODO: correct updateVisionSensors()
     public void updateVisionSensors() {
         float degreeIterator = this.body.getRotation();
         for (int i = 0; i < this.visionSensors.length; i++) {
             float x = (float) (this.body.getCenterOfMass().x + Math.cos(Math.toRadians(degreeIterator)) * visionSensorRange);
             float y = (float) (this.body.getCenterOfMass().y + Math.sin(Math.toRadians(degreeIterator)) * visionSensorRange);
             Vertice rayEnd = new Vertice(x, y);
-            degreeIterator += 22.5f;
+            degreeIterator += 360 / (float) this.visionSensors.length;
             for (Object object : Object.objects) {
                 if (!ignore.contains(object)) {
                     Vertice intersection = MathService.getFirstIntersectionPoint(this.body.getCenterOfMass(), rayEnd, object, visionSensorPrecision);
-                    if (intersection != null)
-                        this.visionSensors[i] = MathService.getDistanceBetweenPoints(this.body.getCenterOfMass(), rayEnd);
-                    else
+                    if (intersection != null) {
+                        this.visionSensors[i] = MathService.getDistanceBetweenPoints(this.body.getCenterOfMass(), intersection);
+                        this.visionSensorDetections[i] = intersection;
+                    }
+                    else {
                         this.visionSensors[i] = visionSensorRange;
+                        this.visionSensorDetections[i] = rayEnd;
+                    }
                 }
             }
         }
@@ -99,7 +113,6 @@ public class Car {
 
     public void brake() {
         this.body.setVelocity(0);
-        this.body.setAcceleration(0);
     }
 
     public void steerRight() {
@@ -118,16 +131,16 @@ public class Car {
 
     @Override
     public String toString() {
-        String str =  "Car " + this.carId + ":\nBody Object: " + this.body.getId() + "\nCenter Of Mass Coordinates: {" + this.body.getCenterOfMass().x
-                + ", " + this.body.getCenterOfMass().y + "}\nSpeed: " + this.body.getVelocity() + "\nAcceleration: " + this.body.getAcceleration() +
-                "\nRotation: " + this.body.getRotation() + "\nWidth: " + this.width + "\nLength: " + this.length + "\nVision Sensors: {";
+        String str =  "Car " + this.carId + ":\nBody Object: " + this.body.getId() + "\nCenter Of Mass Coordinates: {" + String.format("%.02f", this.body.getCenterOfMass().x)
+                + ", " + String.format("%.02f", this.body.getCenterOfMass().y) + "}\nSpeed: " + String.format("%.02f", this.body.getVelocity()) + "\nRotation: " +
+                this.body.getRotation() + "\nWidth: " + this.width + "\nLength: " + this.length + "\nVision Sensors: {";
         for (int i = 0; i < this.visionSensors.length; i++) {
             if (i < this.visionSensors.length - 1)
                 str += this.visionSensors[i] + ", ";
             else
                 str += this.visionSensors[i];
         }
-        str += "}\nTarget Distance Sensor: {" + this.targetDistanceSensor[0] + ", " + this.targetDistanceSensor[1] + "}\nPark Area Check Sensor: {";
+        str += "}\nTarget Distance Sensor: {" + String.format("%.02f", this.targetDistanceSensor[0]) + ", " + String.format("%.02f", this.targetDistanceSensor[1]) + "}\nPark Area Check Sensor: {";
         for (int i = 0; i < this.parkAreaCheckSensor.length; i++) {
             if (i < this.parkAreaCheckSensor.length - 1)
                 str += this.parkAreaCheckSensor[i] + ", ";
@@ -135,6 +148,27 @@ public class Car {
                 str += this.parkAreaCheckSensor[i];
         }
         str += "}";
+        return str;
+    }
+
+    public String toStringJLabel() {
+        String str =  "<html>Car " + this.carId + ":<br/>Body Object: " + this.body.getId() + "<br/>Center Of Mass Coordinates: {" + String.format("%.02f", this.body.getCenterOfMass().x)
+                + ", " + String.format("%.02f", this.body.getCenterOfMass().y) + "}<br/>Speed: " + String.format("%.02f", this.body.getVelocity()) + "<br/>Rotation: " +
+                this.body.getRotation() + "<br/>Width: " + this.width + "<br/>Length: " + this.length + "<br/>Vision Sensors: {";
+        for (int i = 0; i < this.visionSensors.length; i++) {
+            if (i < this.visionSensors.length - 1)
+                str += this.visionSensors[i] + ", ";
+            else
+                str += this.visionSensors[i];
+        }
+        str += "}<br/>Target Distance Sensor: {" + String.format("%.02f", this.targetDistanceSensor[0]) + ", " + String.format("%.02f", this.targetDistanceSensor[1]) + "}<br/>Park Area Check Sensor: {";
+        for (int i = 0; i < this.parkAreaCheckSensor.length; i++) {
+            if (i < this.parkAreaCheckSensor.length - 1)
+                str += this.parkAreaCheckSensor[i] + ", ";
+            else
+                str += this.parkAreaCheckSensor[i];
+        }
+        str += "}</html>";
         return str;
     }
 
@@ -156,6 +190,10 @@ public class Car {
 
     public float[] getVisionSensors() {
         return visionSensors;
+    }
+
+    public Vertice[] getVisionSensorDetections() {
+        return visionSensorDetections;
     }
 
     public float[] getTargetDistanceSensor() {

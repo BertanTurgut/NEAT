@@ -13,12 +13,11 @@ public class Object {
     private Vertice centerOfMass; // index 0: x; index 1: y
     private float rotation; // in degrees
     private float velocity;
-    private float acceleration;
 
     public Object(ArrayList<Vertice> vertices, float rotation) {
         this.id = objects.size();
         objects.add(this);
-        this.vertices = new ArrayList<>(vertices);
+        this.vertices = vertices;
         this.centerOfMass = new Vertice(0, 0);
         for (Vertice vertex : this.vertices) {
             this.centerOfMass.x += vertex.x;
@@ -28,10 +27,13 @@ public class Object {
         this.centerOfMass.y /= this.vertices.size();
         this.rotation = rotation;
         this.velocity = 0;
-        this.acceleration = 0;
     }
 
     public void update() {
+        if (this.rotation > 360)
+            this.rotation -= 360;
+        else if (this.rotation < -360)
+            this.rotation += 360;
         float width = MathService.getDistanceBetweenPoints(this.vertices.get(0), this.vertices.get(1));
         float length = MathService.getDistanceBetweenPoints(this.vertices.get(1), this.vertices.get(2));
         float structuralDegree = (float) Math.toDegrees(Math.atan(width / length));
@@ -51,14 +53,12 @@ public class Object {
         }
         this.centerOfMass.x /= this.getVertices().size();
         this.centerOfMass.y /= this.getVertices().size();
-        this.acceleration = 0;
     }
 
     @Override
     public String toString() {
         return "Object " + this.id + ":\nCenter Of Mass Coordinates: {" + this.centerOfMass.x
-                + ", " + this.centerOfMass.y + "}\nSpeed: " + this.velocity + "\nAcceleration: " + this.acceleration +
-                "\nRotation: " + this.rotation;
+                + ", " + this.centerOfMass.y + "}\nSpeed: " + this.velocity + "\nAcceleration: " + "\nRotation: " + this.rotation;
     }
 
     public int getId() {
@@ -105,13 +105,5 @@ public class Object {
 
     public void setVelocity(float velocity) {
         this.velocity = velocity;
-    }
-
-    public float getAcceleration() {
-        return acceleration;
-    }
-
-    public void setAcceleration(float acceleration) {
-        this.acceleration = acceleration;
     }
 }

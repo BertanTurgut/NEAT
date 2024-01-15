@@ -35,13 +35,13 @@ public class MathService {
             if (vertex2.y > maxY)
                 maxY = vertex2.y;
         }
-        return rotatedX >= minX && rotatedX <= maxX && rotatedY >= minY && rotatedY <= maxX;
+        return rotatedX >= minX && rotatedX <= maxX && rotatedY >= minY && rotatedY <= maxY;
     }
 
     public static Vertice getFirstIntersectionPoint(Vertice start, Vertice end, Object object, float precision) {
         Vertice iteratorVertex = new Vertice(start.x, start.y);
-        while (!isVertexInsideBox(iteratorVertex, object.getVertices()) && Math.abs(iteratorVertex.x - start.x) <= Math.abs(end.x - start.x)) {
-            float radian = (float) Math.atan((end.y - start.y) / (end.x - start.x));
+        float radian = (float) Math.atan((end.y - start.y) / (end.x - start.x));
+        while (!isVertexInsideBox(iteratorVertex, object.getVertices()) && Math.abs(iteratorVertex.x - start.x) < Math.abs(end.x - start.x)) {
             iteratorVertex.x += Math.cos(radian) * precision;
             iteratorVertex.y += Math.sin(radian) * precision;
         }
