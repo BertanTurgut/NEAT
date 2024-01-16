@@ -21,6 +21,7 @@ public class TestAnimation {
     public JLabel carData;
     public ArrayList<Vertice> parkPlot;
     public Object object0;
+    public Object object1;
 
     public TestAnimation() {
         this.timer = new Timer(10, new TimerListener());
@@ -31,16 +32,22 @@ public class TestAnimation {
         this.panel.setBackground(new Color(197, 203, 141));
         this.carData = new JLabel();
         this.parkPlot = new ArrayList<>();
-        parkPlot.add(new Vertice(9.5f*10+600, 16.2f*10+600));
-        parkPlot.add(new Vertice(20.3f*10+600, 12.6f*10+600));
-        parkPlot.add(new Vertice(16.6f*10+600, 1.8f*10+600));
-        parkPlot.add(new Vertice(5.9f*10+600, 5.4f*10+600));
+        parkPlot.add(new Vertice(9.5f*10+300, 16.2f*10+600));
+        parkPlot.add(new Vertice(20.3f*10+300, 12.6f*10+600));
+        parkPlot.add(new Vertice(16.6f*10+300, 1.8f*10+600));
+        parkPlot.add(new Vertice(5.9f*10+300, 5.4f*10+600));
         ArrayList<Vertice> object0Vertices = new ArrayList<>();
-        object0Vertices.add(new Vertice(500, 300));
-        object0Vertices.add(new Vertice(600, 300));
-        object0Vertices.add(new Vertice(600, 200));
-        object0Vertices.add(new Vertice(500, 200));
+        object0Vertices.add(new Vertice(550, 400));
+        object0Vertices.add(new Vertice(650, 400));
+        object0Vertices.add(new Vertice(650, 300));
+        object0Vertices.add(new Vertice(550, 300));
         this.object0 = new Object(object0Vertices, 55);
+        ArrayList<Vertice> object1Vertices = new ArrayList<>();
+        object1Vertices.add(new Vertice(-0.4f*50+300, -2.3f*50+400));
+        object1Vertices.add(new Vertice(1.8f*50+300, -1.3f*50+400));
+        object1Vertices.add(new Vertice(0.4f*50+300, 2.3f*50+400));
+        object1Vertices.add(new Vertice(-1.8f*50+300, 1.3f*50+400));
+        this.object1 = new Object(object1Vertices, 55);
     }
 
     public void startAnimation() {
@@ -80,22 +87,9 @@ public class TestAnimation {
     private class CarDepiction extends JComponent {
         @Override
         public void paintComponent(Graphics g) {
-            ((Graphics2D)g).setStroke(new BasicStroke(5));
+            ((Graphics2D)g).setStroke(new BasicStroke(2));
             g.setColor(new Color(107, 102, 102));
-            for (int i = 0; i < 4; i++) {
-                int x1 = (int) testCar.getBody().getVertices().get(i).x;
-                int y1 = frameHeight - (int) testCar.getBody().getVertices().get(i).y;
-                int x2, y2;
-                if (i == 3) {
-                    x2 = (int) testCar.getBody().getVertices().get(0).x;
-                    y2 = frameHeight - (int) testCar.getBody().getVertices().get(0).y;
-                }
-                else {
-                    x2 = (int) testCar.getBody().getVertices().get(i + 1).x;
-                    y2 = frameHeight - (int) testCar.getBody().getVertices().get(i + 1).y;
-                }
-                g.drawLine(x1, y1, x2, y2);
-            }
+            drawVertices(testCar.getBody().getVertices(), g);
             ((Graphics2D) g).setStroke(new BasicStroke(2));
             g.setColor(new Color(250, 207, 33));
             int cmX = (int) testCar.getBody().getCenterOfMass().x;
@@ -105,37 +99,32 @@ public class TestAnimation {
                 int y2 = frameHeight - (int) testCar.getVisionSensorDetections()[i].y;
                 g.drawLine(cmX, cmY, x2, y2);
             }
+            ((Graphics2D) g).setStroke(new BasicStroke(2));
+            g.setColor(new Color(9, 182, 3));
+            drawVertices(parkPlot, g);
+            ((Graphics2D) g).setStroke(new BasicStroke(2));
             g.setColor(new Color(0, 0, 0));
-            for (int i = 0; i < 4; i++) {
-                int x1 = (int) parkPlot.get(i).x;
-                int y1 = frameHeight - (int) parkPlot.get(i).y;
-                int x2, y2;
-                if (i == 3) {
-                    x2 = (int) parkPlot.get(0).x;
-                    y2 = frameHeight - (int) parkPlot.get(0).y;
-                }
-                else {
-                    x2 = (int) parkPlot.get(i + 1).x;
-                    y2 = frameHeight - (int) parkPlot.get(i + 1).y;
-                }
-                g.drawLine(x1, y1, x2, y2);
-            }
-            ((Graphics2D) g).setStroke(new BasicStroke(1));
+            drawVertices(object0.getVertices(), g);
+            ((Graphics2D) g).setStroke(new BasicStroke(2));
             g.setColor(new Color(0, 0, 0));
-            for (int i = 0; i < 4; i++) {
-                int x1 = (int) object0.getVertices().get(i).x;
-                int y1 = frameHeight - (int) object0.getVertices().get(i).y;
-                int x2, y2;
-                if (i == 3) {
-                    x2 = (int) object0.getVertices().get(0).x;
-                    y2 = frameHeight - (int) object0.getVertices().get(0).y;
-                }
-                else {
-                    x2 = (int) object0.getVertices().get(i + 1).x;
-                    y2 = frameHeight - (int) object0.getVertices().get(i + 1).y;
-                }
-                g.drawLine(x1, y1, x2, y2);
+            drawVertices(object1.getVertices(), g);
+        }
+    }
+
+    public static void drawVertices(ArrayList<Vertice> vertices, Graphics g) {
+        for (int i = 0; i < 4; i++) {
+            int x1 = (int) vertices.get(i).x;
+            int y1 = frameHeight - (int) vertices.get(i).y;
+            int x2, y2;
+            if (i == 3) {
+                x2 = (int) vertices.get(0).x;
+                y2 = frameHeight - (int) vertices.get(0).y;
             }
+            else {
+                x2 = (int) vertices.get(i + 1).x;
+                y2 = frameHeight - (int) vertices.get(i + 1).y;
+            }
+            g.drawLine(x1, y1, x2, y2);
         }
     }
 

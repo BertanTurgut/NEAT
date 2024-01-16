@@ -220,7 +220,7 @@ public class main {
     }*/
 
     /**
-     * test5 was tested on __ at __
+     * test5 was tested on 16.01.2024 at 13.00
      */
     public static void test5() {
         TestAnimation testAnimation = new TestAnimation();

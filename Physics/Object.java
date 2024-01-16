@@ -4,7 +4,6 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Objects;
 
-// TODO: implement collision detection
 public class Object {
     public static ArrayList<Object> objects = new ArrayList<>();
 
