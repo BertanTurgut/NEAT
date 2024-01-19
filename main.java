@@ -1,9 +1,11 @@
 import Graphics.TestAnimation;
 import NEAT.*;
+import Physics.Car;
 import Physics.MathService;
 import Physics.Object;
 import Physics.Vertice;
 
+import java.awt.*;
 import java.util.ArrayList;
 
 public class main {
@@ -13,7 +15,11 @@ public class main {
         //test2();
         //test3();
         //test4();
-        test5();
+        //test5();
+        //test6();
+        //test7();
+        //test8();
+        test9();
     }
 
     /**
@@ -225,5 +231,187 @@ public class main {
     public static void test5() {
         TestAnimation testAnimation = new TestAnimation();
         testAnimation.startAnimation();
+    }
+
+    /**
+     * test6 was tested on 18.01.2024 at 23.30
+     */
+    public static void test6() {
+        ArrayList<Gene> genome = new ArrayList<>();
+
+        genome.add(new NodeGene(0));
+        genome.add(new NodeGene(1));
+        genome.add(new NodeGene(2));
+        genome.add(new NodeGene(3));
+
+        genome.add(new ConnectionGene(0, 1, 1 ,true));
+        genome.add(new ConnectionGene(2, 1, 1 ,true));
+        genome.add(new ConnectionGene(1, 3, 1, true));
+
+        NeuralNetwork nn = Gene.createNNFromGenome(genome);
+        for (Node inputNode : nn.getInputNodes())
+            inputNode.setValue(3);
+        nn.forwardFeed();
+
+        String encoding = Gene.encodeGenome(genome);
+
+        Car testCar = new Car(20, 45, 0, 0, 0);
+        Agent agent = new Agent(testCar, encoding);
+
+        System.out.println("Test 6:\n#============#\n");
+        for (Gene gene : Gene.innovations)
+            System.out.println(gene);
+        System.out.println(nn);
+        System.out.println(nn.output());
+        System.out.println(encoding);
+        NEAT.weightMutation(agent);
+        for (Node inputNode : agent.getNeuralNetwork().getInputNodes())
+            inputNode.setValue(3);
+        agent.getNeuralNetwork().forwardFeed();
+        for (Gene gene : Gene.innovations)
+            System.out.println(gene);
+        System.out.println(agent.getNeuralNetwork());
+        System.out.println(agent.getNeuralNetwork().output());
+        System.out.println(agent.getGenomeEncoding());
+        System.out.println("#============#\n");
+    }
+
+    /**
+     * test7 was tested on 19.01.2024 at 03.00
+     */
+    public static void test7() {
+        ArrayList<Gene> genome = new ArrayList<>();
+
+        genome.add(new NodeGene(0));
+        genome.add(new NodeGene(1));
+        genome.add(new NodeGene(2));
+
+        genome.add(new ConnectionGene(0, 2, 0.2f, true));
+        genome.add(new ConnectionGene(1, 2, 0.5f, true));
+
+        NeuralNetwork nn = Gene.createNNFromGenome(genome);
+        for (Node inputNode : nn.getInputNodes())
+            inputNode.setValue(0.3f);
+        nn.forwardFeed();
+
+        String encoding = Gene.encodeGenome(genome);
+
+        Car testCar = new Car(20, 45, 0, 0, 0);
+        Agent agent = new Agent(testCar, encoding);
+
+        System.out.println("Test 7:\n#============#\n");
+        for (Gene gene : Gene.innovations)
+            System.out.println(gene);
+        System.out.println(nn);
+        System.out.println(nn.output());
+        System.out.println(encoding + "\n");
+        NEAT.nodeAddMutation(agent);
+        for (Node inputNode : agent.getNeuralNetwork().getInputNodes())
+            inputNode.setValue(1f);
+        agent.getNeuralNetwork().forwardFeed();
+        for (Gene gene : agent.getGenome())
+            System.out.println(gene);
+        System.out.println(agent.getNeuralNetwork());
+        System.out.println(agent.getNeuralNetwork().output());
+        System.out.println(agent.getGenomeEncoding() + "\n");
+        System.out.println("#============#\n");
+    }
+
+    /**
+     * test8 was tested on 19.01.2024 at 15.30
+     */
+    public static void test8() {
+        ArrayList<Gene> genome = new ArrayList<>();
+
+        genome.add(new NodeGene(0));
+        genome.add(new NodeGene(1));
+        genome.add(new NodeGene(2));
+        genome.add(new NodeGene(3));
+
+        genome.add(new ConnectionGene(0, 2, 0.3f, true));
+        genome.add(new ConnectionGene(1, 2, 0.5f, true));
+        genome.add(new ConnectionGene(2, 3, -0.1f, true));
+
+        NeuralNetwork nn = Gene.createNNFromGenome(genome);
+        for (Node inputNode : nn.getInputNodes())
+            inputNode.setValue(1f);
+        nn.forwardFeed();
+
+        String encoding = Gene.encodeGenome(genome);
+
+        Car testCar = new Car(20, 45, 0, 0, 0);
+        Agent agent = new Agent(testCar, encoding);
+
+        System.out.println("Test 8:\n#============#\n");
+        for (Gene gene : Gene.innovations)
+            System.out.println(gene);
+        System.out.println(nn);
+        System.out.println(nn.output());
+        System.out.println(encoding + "\n");
+        for (Node node : nn.getNodes())
+            System.out.println(node.getId() + ", " + node.getDepth() + ", " + node.getValue());
+        System.out.println("\n");
+        NEAT.connectionSwitchMutation(agent);
+        for (Node inputNode : agent.getNeuralNetwork().getInputNodes())
+            inputNode.setValue(1f);
+        agent.getNeuralNetwork().forwardFeed();
+        for (Gene gene : agent.getGenome())
+            System.out.println(gene);
+        System.out.println(agent.getNeuralNetwork());
+        System.out.println(agent.getNeuralNetwork().output());
+        System.out.println(agent.getGenomeEncoding() + "\n");
+        for (Node node : agent.getNeuralNetwork().getNodes())
+            System.out.println(node.getId() + ", " + node.getDepth() + ", " + node.getValue());
+        System.out.println("\n");
+        System.out.println("#============#\n");
+    }
+
+    /**
+     * test9 was tested on 19.01.2024 at 19.00
+     */
+    public static void test9() {
+        ArrayList<Gene> genome = new ArrayList<>();
+
+        genome.add(new NodeGene(0));
+        genome.add(new NodeGene(1));
+        genome.add(new NodeGene(2));
+        genome.add(new NodeGene(3));
+
+        genome.add(new ConnectionGene(0, 2, 0.3f, true));
+        genome.add(new ConnectionGene(1, 2, 0.5f, true));
+        genome.add(new ConnectionGene(2, 3, -0.1f, true));
+
+        NeuralNetwork nn = Gene.createNNFromGenome(genome);
+        for (Node inputNode : nn.getInputNodes())
+            inputNode.setValue(1f);
+        nn.forwardFeed();
+
+        String encoding = Gene.encodeGenome(genome);
+
+        Car testCar = new Car(20, 45, 0, 0, 0);
+        Agent agent = new Agent(testCar, encoding);
+
+        System.out.println("Test 8:\n#============#\n");
+        for (Gene gene : Gene.innovations)
+            System.out.println(gene);
+        System.out.println(nn);
+        System.out.println(nn.output());
+        System.out.println(encoding + "\n");
+        for (Node node : nn.getNodes())
+            System.out.println(node.getId() + ", " + node.getDepth() + ", " + node.getValue());
+        System.out.println();
+        NEAT.connectionAddMutation(agent);
+        for (Node inputNode : agent.getNeuralNetwork().getInputNodes())
+            inputNode.setValue(1f);
+        agent.getNeuralNetwork().forwardFeed();
+        for (Gene gene : agent.getGenome())
+            System.out.println(gene);
+        System.out.println(agent.getNeuralNetwork());
+        System.out.println(agent.getNeuralNetwork().output());
+        System.out.println(agent.getGenomeEncoding() + "\n");
+        for (Node node : agent.getNeuralNetwork().getNodes())
+            System.out.println(node.getId() + ", " + node.getDepth() + ", " + node.getValue());
+        System.out.println();
+        System.out.println("#============#\n");
     }
 }

@@ -10,7 +10,7 @@ public class NodeGene extends Gene {
 
     @Override
     public String toString() {
-        return "NODE GENE:\nInnovation number: " + this.getInnovationNumber() + "\nGene type: " + this.getGeneType() + "\nNode ID: " + this.id + "\n";
+        return "NODE GENE:\nInnovation number: " + this.getInnovationNumber() + "\nNode ID: " + this.id + "\n";
     }
 
     public int getId() {

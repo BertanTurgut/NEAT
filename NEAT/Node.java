@@ -22,10 +22,10 @@ public class Node {
             return;
         }
         int previousDepth = this.depth;
-        int min = this.inputNodes.get(0).depth + 1;
+        int max = this.inputNodes.get(0).depth + 1;
         for (Node inputNode : this.inputNodes)
-            min = Math.max(inputNode.depth + 1, min);
-        this.depth = min;
+            max = Math.max(inputNode.depth + 1, max);
+        this.depth = max;
         if (this.depth != previousDepth)
             for (Node outputNode : this.outputNodes)
                 if (this.depth + 1 > outputNode.depth)
@@ -72,5 +72,13 @@ public class Node {
 
     public void removeOutputNode(Node node) {
         this.outputNodes.remove(node);
+    }
+
+    public ArrayList<Node> getInputNodes() {
+        return inputNodes;
+    }
+
+    public ArrayList<Node> getOutputNodes() {
+        return outputNodes;
     }
 }

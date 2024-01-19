@@ -12,14 +12,14 @@ public class Gene {
     public static NeuralNetwork createNNFromGenome(ArrayList<Gene> genome) {
         ArrayList<Node> nodes = new ArrayList<>();
         for (Gene gene : genome) {
-            if (gene.geneType == 0) {
+            if (gene instanceof NodeGene) {
                 Node node = new Node(((NodeGene)gene).getId(), 0);
                 nodes.add(node);
             }
         }
         ArrayList<Connection> connections = new ArrayList<>();
         for (Gene gene : genome) {
-            if (gene.geneType == 1) {
+            if (gene instanceof ConnectionGene) {
                 Node input = null;
                 Node output = null;
                 for (Node node : nodes) {
@@ -101,7 +101,6 @@ public class Gene {
     }
 
     private int innovationNumber;
-    private int geneType; // 0->Node 1->Connection
 
     public Gene(boolean enabled) {
         this.innovationNumber = innovationTracker;
@@ -116,14 +115,6 @@ public class Gene {
 
     public void setInnovationNumber(int innovationNumber) {
         this.innovationNumber = innovationNumber;
-    }
-
-    public int getGeneType() {
-        return geneType;
-    }
-
-    public void setGeneType(int geneType) {
-        this.geneType = geneType;
     }
 }
 

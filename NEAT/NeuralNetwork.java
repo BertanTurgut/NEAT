@@ -20,19 +20,27 @@ public class NeuralNetwork {
             if (!this.layers.contains(node.getDepth()))
                 this.layers.add(node.getDepth());
         for (Node node : this.nodes) {
-            if (node.getDepth() == 0)
+            if (node.getInputNodes().isEmpty())
                 this.inputNodes.add(node);
-            else if (node.getDepth() == this.layers.get(this.layers.size() - 1))
+            else if (node.getOutputNodes().isEmpty())
                 this.outputNodes.add(node);
         }
         Collections.sort(this.layers);
     }
 
     public void forwardFeed() {
-        for (Integer layer : this.layers)
+        for (Integer layer : this.layers) {
+            ArrayList<Node> layerOutputNodes = new ArrayList<>();
             for (Connection connection : this.connections)
-                if (connection.getInputNode().getDepth() == layer)
+                if (connection.getInputNode().getDepth() == layer && connection.getEnabled()) {
                     connection.feedOutputNode();
+                    if (!layerOutputNodes.contains(connection.getOutputNode()))
+                        layerOutputNodes.add(connection.getOutputNode());
+                }
+            for (Node node : layerOutputNodes)
+                if (node.getDepth() == layer + 1)
+                    node.setValue(tanh(node.getValue()));
+        }
     }
 
     public String output() {
@@ -58,6 +66,10 @@ public class NeuralNetwork {
                 str += "------------\n";
         }
         return str;
+    }
+
+    public static float tanh(float input) {
+        return (float) ((Math.exp(input) - Math.exp(-input)) / (Math.exp(input) + Math.exp(-input)));
     }
 
     public ArrayList<Node> getNodes() {

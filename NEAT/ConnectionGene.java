@@ -8,7 +8,6 @@ public class ConnectionGene extends Gene {
 
     public ConnectionGene(int inId, int outId, float weight, boolean enabled) {
         super(enabled);
-        this.setGeneType(1);
         this.inId = inId;
         this.outId = outId;
         this.weight = weight;
@@ -19,7 +18,7 @@ public class ConnectionGene extends Gene {
 
     @Override
     public String toString() {
-        return"CONNECTION GENE:\nInnovation number: " + this.getInnovationNumber() + "\nGene type: " + this.getGeneType() + "\nInput node ID: " +
+        return"CONNECTION GENE:\nInnovation number: " + this.getInnovationNumber() + "\nInput node ID: " +
                 this.inId + "\nOutput node ID: " + this.outId + "\nWeight: " + this.weight + "\nEnabled: " + this.enabled + "\n";
     }
 

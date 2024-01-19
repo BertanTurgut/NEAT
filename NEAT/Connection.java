@@ -13,13 +13,16 @@ public class Connection {
         this.outputNode = output;
         this.weight = weight;
         this.enabled = enabled;
-        input.addOutputNode(output);
-        output.addInputNode(input);
+        if (this.enabled) {
+            input.addOutputNode(output);
+            output.addInputNode(input);
+        }
     }
 
     public void feedOutputNode() {
-        if (this.enabled)
+        if (this.enabled) {
             this.outputNode.setValue(this.outputNode.getValue() + this.inputNode.getValue() * this.weight);
+        }
     }
 
     public static ArrayList<Connection> connectAll(ArrayList<Node> inputNodes, ArrayList<Node> outputNodes, boolean randomWeight, float weight, boolean enabled) {

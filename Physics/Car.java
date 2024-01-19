@@ -76,7 +76,6 @@ public class Car {
         }
     }
 
-    // TODO: correct collisionDetection() method
     public void collisionDetection() {
         for (Object object : Object.objects) {
             if (!ignore.contains(object)) {
