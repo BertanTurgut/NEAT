@@ -1,8 +1,12 @@
 package Graphics;
 
+import NEAT.Agent;
+import NEAT.ConnectionGene;
+import NEAT.Gene;
 import Physics.Car;
 import Physics.Object;
 import Physics.Vertice;
+import Simulation.Simulation;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,12 +14,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
+// TODO: test simultaneously runnable agent limit
 public class TestAnimation {
     public static final int frameWidth = 800;
     public static final int frameHeight = 800;
 
     public Timer timer;
+    public Simulation simulation;
     public Car testCar;
+    public Agent agent;
     public CarDepiction carDepiction;
     public JPanel panel;
     public JLabel carData;
@@ -25,7 +32,16 @@ public class TestAnimation {
 
     public TestAnimation() {
         this.timer = new Timer(10, new TimerListener());
+        this.simulation = new Simulation();
+        simulation.initiateInnovations();
         this.testCar = new Car(20,45, 400, 400, 90);
+        ArrayList<Gene> initialGenes = new ArrayList<>();
+        for (Gene gene : Gene.innovations) {
+            if (gene instanceof ConnectionGene && !((ConnectionGene) gene).isEnabled())
+                continue;
+            initialGenes.add(gene);
+        }
+        this.agent = new Agent(testCar, Gene.encodeGenome(initialGenes));
         this.carDepiction = new CarDepiction();
         this.panel = new JPanel();
         this.panel.setLayout(new GridLayout(0, 1));
@@ -78,9 +94,11 @@ public class TestAnimation {
     private class TimerListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            testCar.update(parkPlot);
+            //testCar.update(parkPlot);
+            agent.drive(parkPlot);
             carData.setText(testCar.toStringJLabel());
             carDepiction.repaint();
+            //System.out.println(agent.getNeuralNetwork());
         }
     }
 

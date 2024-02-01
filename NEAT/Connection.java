@@ -30,7 +30,7 @@ public class Connection {
         ArrayList<Connection> connections = new ArrayList<>();
         for (Node in : inputNodes)
             for (Node out : outputNodes) {
-                float weight_loc = (randomWeight) ? (float) (random.nextInt(100)) / 10 : weight;
+                float weight_loc = (randomWeight) ? random.nextFloat() : weight;
                 Connection connection = new Connection(in, out, weight_loc, enabled);
                 connections.add(connection);
             }

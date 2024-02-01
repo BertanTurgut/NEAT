@@ -1,7 +1,5 @@
 package NEAT;
 
-import org.w3c.dom.traversal.NodeFilter;
-
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -75,7 +73,7 @@ public class Gene {
         for (Gene gene1 : genome1) {
             boolean find = false;
             for (Gene gene2 : genome2) {
-                if (gene1.innovationNumber == gene2.innovationNumber) {
+                if (gene1.innovationNumber == gene2.innovationNumber) { // disabled and enabled versions are interpreted as the same
                     offspringGenome.add(r.nextBoolean() ? gene1 : gene2);
                     find = true;
                     break;

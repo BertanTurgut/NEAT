@@ -4,6 +4,7 @@ import Physics.Car;
 import Physics.MathService;
 import Physics.Object;
 import Physics.Vertice;
+import Simulation.Simulation;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -19,7 +20,8 @@ public class main {
         //test6();
         //test7();
         //test8();
-        test9();
+        //test9();
+        test10();
     }
 
     /**
@@ -200,7 +202,7 @@ public class main {
     /**
      * test4 was tested on 12.01.2024 at 15.00
      */
-    /*public static void test4() {
+    public static void test4() {
         Vertice vertex0 = new Vertice(7f, 3.3f);
 
         Vertice boxVertex0 = new Vertice(0f, 0f);
@@ -223,7 +225,7 @@ public class main {
         System.out.println(Math.tan(Math.toRadians(-45)));
         System.out.println("#============#\n");
 
-    }*/
+    }
 
     /**
      * test5 was tested on 16.01.2024 at 13.00
@@ -264,7 +266,7 @@ public class main {
         System.out.println(nn);
         System.out.println(nn.output());
         System.out.println(encoding);
-        NEAT.weightMutation(agent);
+        agent.weightMutation();
         for (Node inputNode : agent.getNeuralNetwork().getInputNodes())
             inputNode.setValue(3);
         agent.getNeuralNetwork().forwardFeed();
@@ -305,7 +307,7 @@ public class main {
         System.out.println(nn);
         System.out.println(nn.output());
         System.out.println(encoding + "\n");
-        NEAT.nodeAddMutation(agent);
+        agent.nodeAddMutation();
         for (Node inputNode : agent.getNeuralNetwork().getInputNodes())
             inputNode.setValue(1f);
         agent.getNeuralNetwork().forwardFeed();
@@ -351,7 +353,7 @@ public class main {
         for (Node node : nn.getNodes())
             System.out.println(node.getId() + ", " + node.getDepth() + ", " + node.getValue());
         System.out.println("\n");
-        NEAT.connectionSwitchMutation(agent);
+        agent.connectionSwitchMutation();
         for (Node inputNode : agent.getNeuralNetwork().getInputNodes())
             inputNode.setValue(1f);
         agent.getNeuralNetwork().forwardFeed();
@@ -400,7 +402,7 @@ public class main {
         for (Node node : nn.getNodes())
             System.out.println(node.getId() + ", " + node.getDepth() + ", " + node.getValue());
         System.out.println();
-        NEAT.connectionAddMutation(agent);
+        agent.connectionAddMutation();
         for (Node inputNode : agent.getNeuralNetwork().getInputNodes())
             inputNode.setValue(1f);
         agent.getNeuralNetwork().forwardFeed();
@@ -413,5 +415,19 @@ public class main {
             System.out.println(node.getId() + ", " + node.getDepth() + ", " + node.getValue());
         System.out.println();
         System.out.println("#============#\n");
+    }
+
+    /**
+     * test10 was tested on __ at __
+     */
+    public static void test10() {
+        ArrayList<Vertice> parkPlot = new ArrayList<>();
+        parkPlot.add(new Vertice(9.5f*10+300, 16.2f*10+600));
+        parkPlot.add(new Vertice(20.3f*10+300, 12.6f*10+600));
+        parkPlot.add(new Vertice(16.6f*10+300, 1.8f*10+600));
+        parkPlot.add(new Vertice(5.9f*10+300, 5.4f*10+600));
+
+        Simulation simulation = new Simulation();
+        simulation.process(parkPlot);
     }
 }

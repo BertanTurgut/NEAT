@@ -39,7 +39,7 @@ public class NeuralNetwork {
                 }
             for (Node node : layerOutputNodes)
                 if (node.getDepth() == layer + 1)
-                    node.setValue(tanh(node.getValue()));
+                    node.setValue(sigmoid(node.getValue()));
         }
     }
 
@@ -59,7 +59,9 @@ public class NeuralNetwork {
         for (Integer layer : this.layers) {
             for (Connection connection : connections)
                 if (connection.getInputNode().getDepth() == layer) {
-                    str += connection.getInputNode().getId() + " -(" + connection.getWeight() + ")-> " + connection.getOutputNode().getId();
+                    str += connection.getInputNode().getId() + "[" + String.format("%.02f", connection.getInputNode().getValue())
+                            + "]" + " -(" + String.format("%.04f", connection.getWeight()) + ")-> " + connection.getOutputNode().getId() + "["
+                            + String.format("%.02f", connection.getOutputNode().getValue()) + "]";
                     str = connection.getEnabled() ? str + "\n" : str + " [X]\n";
                 }
             if (!this.layers.get(layers.size() - 1).equals(layer))
@@ -70,6 +72,10 @@ public class NeuralNetwork {
 
     public static float tanh(float input) {
         return (float) ((Math.exp(input) - Math.exp(-input)) / (Math.exp(input) + Math.exp(-input)));
+    }
+
+    public static float sigmoid(float input) {
+        return (float) (1 / (1 + Math.exp(-input)));
     }
 
     public ArrayList<Node> getNodes() {

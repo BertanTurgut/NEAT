@@ -57,6 +57,34 @@ public class Car {
         ignore.add(this.body);
     }
 
+    public void resetCar(float cmX, float cmY, float rotation) {
+        for (float i : this.visionSensors) i = visionSensorRange;
+        this.visionSensorDetections = new Vertice[16];
+        for (float i : this.targetDistanceSensor) i = 0;
+        for (boolean b : this.parkAreaCheckSensor) b = false;
+        Vertice forwardLeft = new Vertice(cmX + length / 2, cmY + width / 2);
+        Vertice forwardRight = new Vertice(cmX + length / 2, cmY - width / 2);
+        Vertice backwardRight = new Vertice(cmX - length / 2, cmY - width / 2);
+        Vertice backwardLeft = new Vertice(cmX - length / 2, cmY + width / 2);
+        Vertice tempCM = new Vertice(cmX, cmY);
+        float structuralDegree = (float) Math.toDegrees(Math.atan(width / length));
+        MathService.setRotationAroundPoint(tempCM, forwardLeft, rotation + structuralDegree);
+        MathService.setRotationAroundPoint(tempCM, forwardRight, rotation - structuralDegree);
+        MathService.setRotationAroundPoint(tempCM, backwardRight, rotation + 180 + structuralDegree);
+        MathService.setRotationAroundPoint(tempCM, backwardLeft, rotation + 180 - structuralDegree);
+        ArrayList<Vertice> vertices = new ArrayList<>();
+        vertices.add(forwardLeft);
+        vertices.add(forwardRight);
+        vertices.add(backwardRight);
+        vertices.add(backwardLeft);
+        this.body.setVertices(vertices);
+        this.body.setRotation(rotation);
+        this.body.setCenterOfMass(tempCM);
+        this.collisionCount = 0;
+        this.isColliding = false;
+        this.parkPlotAlignment = 0;
+    }
+
     public void update(ArrayList<Vertice> parkPlot) {
         this.body.update();
         this.updateVisionSensors();
