@@ -4,29 +4,19 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class Species {
-    private static float globalAverage = 0;
-    private static ArrayList<Species> species = new ArrayList<>();
-
-    public static void calculateGlobalAverage() {
-        int totalAgentCount = 0;
-        float totalFitness = 0;
-        for (Species species : species) {
-            totalAgentCount += species.agents.size();
-            for (Agent agent : species.agents)
-                totalFitness += agent.getFitness();
-        }
-        globalAverage = totalFitness / totalAgentCount;
-    }
+    public static ArrayList<Species> species = new ArrayList<>();
 
     private ArrayList<Agent> agents;
     private Agent representativeAgent;
     private int offspringClaim;
+    private float averageAdjustedFitness;
 
     public Species(Agent agent) {
         this.agents = new ArrayList<>();
         this.agents.add(agent);
         this.representativeAgent = agent;
         this.offspringClaim = 0;
+        this.averageAdjustedFitness = 0;
         species.add(this);
     }
 
@@ -35,11 +25,21 @@ public class Species {
         this.representativeAgent = this.agents.get(random.nextInt(this.agents.size()));
     }
 
-    public void calculateOffspringClaim() {
+    public void calculateAverageAdjustedFitness() {
         float totalAdjustedFitness = 0;
         for (Agent agent : this.agents)
-            totalAdjustedFitness *= agent.getAdjustedFitness();
-        this.offspringClaim = (int) (this.agents.size() * totalAdjustedFitness / globalAverage);
+            totalAdjustedFitness += agent.getAdjustedFitness();
+        this.averageAdjustedFitness = totalAdjustedFitness / this.agents.size();
+    }
+
+    public void calculateOffspringClaim() {
+        int populationSize = 0;
+        float speciesAverageAdjustedFitnessSum = 0;
+        for (Species species : species) {
+            populationSize += species.agents.size();
+            speciesAverageAdjustedFitnessSum += species.averageAdjustedFitness;
+        }
+        this.offspringClaim = (int) ((this.averageAdjustedFitness / speciesAverageAdjustedFitnessSum) * populationSize);
     }
 
     /**
@@ -70,5 +70,9 @@ public class Species {
 
     public int getOffspringClaim() {
         return offspringClaim;
+    }
+
+    public float getAverageAdjustedFitness() {
+        return averageAdjustedFitness;
     }
 }

@@ -428,6 +428,6 @@ public class main {
         parkPlot.add(new Vertice(5.9f*10+300, 5.4f*10+600));
 
         Simulation simulation = new Simulation();
-        simulation.process(parkPlot);
+        simulation.process(parkPlot, 1000);
     }
 }

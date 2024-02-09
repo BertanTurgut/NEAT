@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class Agent {
-    public static final float mutationProb = 0.025f; // CALIBRATE: calibrate mutation probability (should not exceed 0.025 [%2.5])
+    public static final float mutationProb = 0.01f; // CALIBRATE: calibrate mutation probability (should not exceed 0.025 [%2.5])
     public static final float weightMutationProb = 0.25f; // default
     public static final float nodeAddMutationProb = 0.25f; // default
     public static final float connectionSwitchMutationProb = 0.25f; // default
@@ -18,60 +18,44 @@ public class Agent {
 
     // CALIBRATE: calibrate the compatibility threshold and the coefficients of the equation
     public static boolean areAgentsCompatible(Agent agent1, Agent agent2) {
-        int disjointGeneCount = 0;
-        int excessGeneCount = 0;
-        float averageMatchingGeneWeightDifference = 0;
-        int maxInnovation1 = 0;
-        int maxInnovation2 = 0;
-        for (Gene gene : agent1.getGenome())
-            if (gene.getInnovationNumber() > maxInnovation1)
-                maxInnovation1 = gene.getInnovationNumber();
-        for (Gene gene : agent2.getGenome())
-            if (gene.getInnovationNumber() > maxInnovation2)
-                maxInnovation2 = gene.getInnovationNumber();
-        int matchingConnectionGeneCount = 0;
+        int differentGeneCount = 0;
+        outerLoop:
         for (Gene gene1 : agent1.getGenome()) {
-            boolean find = false;
-            for (Gene gene2 : agent2.getGenome()) {
-                if (gene1.getInnovationNumber() == gene2.getInnovationNumber()) {
-                    if (gene1 instanceof ConnectionGene) {
-                        matchingConnectionGeneCount++;
-                        averageMatchingGeneWeightDifference += ((ConnectionGene) gene1).getWeight();
-                    }
-                    find = true;
-                    break;
-                }
-            }
-            if (!find) {
-                if (gene1.getInnovationNumber() > maxInnovation2)
-                    excessGeneCount++;
-                else
-                    disjointGeneCount++;
-            }
+            for (Gene gene2 : agent2.getGenome())
+                if (gene1.getInnovationNumber() == gene2.getInnovationNumber())
+                    continue outerLoop;
+            differentGeneCount++;
         }
-        averageMatchingGeneWeightDifference /= matchingConnectionGeneCount;
+        outerLoop:
         for (Gene gene2 : agent2.getGenome()) {
-            boolean find = false;
-            for (Gene gene1 : agent1.getGenome()) {
-                if (gene2.getInnovationNumber() == gene1.getInnovationNumber()) {
-                    find = true;
-                    break;
-                }
-            }
-            if (!find) {
-                if (gene2.getInnovationNumber() > maxInnovation1)
-                    excessGeneCount++;
-                else
-                    disjointGeneCount++;
-            }
+            for (Gene gene1 : agent1.getGenome())
+                if (gene2.getInnovationNumber() == gene1.getInnovationNumber())
+                    continue outerLoop;
+            differentGeneCount++;
         }
-        float coefficient1 = 1;
+        float averageWeight1 = 0;
+        int connectionGeneCount1 = 0;
+        for (Gene gene : agent1.getGenome())
+            if (gene instanceof ConnectionGene) {
+                averageWeight1 += ((ConnectionGene) gene).getWeight();
+                connectionGeneCount1++;
+            }
+        averageWeight1 /= connectionGeneCount1;
+        float averageWeight2 = 0;
+        int connectionGeneCount2 = 0;
+        for (Gene gene : agent2.getGenome())
+            if (gene instanceof ConnectionGene) {
+                averageWeight2 += ((ConnectionGene) gene).getWeight();
+                connectionGeneCount2++;
+            }
+        averageWeight2 /= connectionGeneCount2;
+        float averageWeightDifference = Math.abs(averageWeight1 - averageWeight2);
+        float coefficient1 = 10;
         float coefficient2 = 1;
-        float coefficient3 = 1;
         int largerGenomeSize = Math.max(agent1.getGenome().size(), agent2.getGenome().size());
-        float nonCompatibility = (coefficient1 * disjointGeneCount + coefficient2 * excessGeneCount) / largerGenomeSize +
-                coefficient3 * averageMatchingGeneWeightDifference;
-        return nonCompatibility <= compatibilityThreshold;
+        float nonCompatibility = (coefficient1 * differentGeneCount) / largerGenomeSize +
+                coefficient2 * averageWeightDifference;
+        return nonCompatibility < compatibilityThreshold;
     }
 
     private Car car;
@@ -142,11 +126,9 @@ public class Agent {
     // CALIBRATE: calibrate calculateFitness() instance method's coefficients
     public void calculateFitness() {
         float fitness = 0;
-        fitness -= Math.abs(this.car.getTargetDistanceSensor()[0]) + Math.abs(this.car.getTargetDistanceSensor()[1]);
-        for (boolean bool : this.car.getParkAreaCheckSensor()) if (bool) fitness += 50;
-        fitness -= Math.log(this.car.getCollisionCount()) * 20;
-        if (this.car.isColliding()) fitness -= 100;
-        fitness -= Math.abs(this.car.getBody().getVelocity() * 10);
+        fitness += 100 / ((Math.abs(this.car.getTargetDistanceSensor()[0]) + Math.abs(this.car.getTargetDistanceSensor()[1]) + 1) / 10);
+        for (boolean bool : this.car.getParkAreaCheckSensor()) if (bool) fitness += 500;
+        fitness += 100 / ((float) (this.car.getCollisionCount() + 1) / 10); // avoid division by 0
         this.fitness = fitness;
     }
 
@@ -286,7 +268,8 @@ public class Agent {
             for (Connection connection : this.getNeuralNetwork().getConnections()) {
                 if ((connection.getInputNode().getId() == node1.getId() && connection.getOutputNode().getId() == node2.getId()) ||
                         (connection.getInputNode().getId() == node2.getId() && connection.getOutputNode().getId() == node1.getId()) ||
-                        (node1.getDepth() == node2.getDepth())) {
+                        (node1.getDepth() == node2.getDepth()) || (node1.getInputNodes().isEmpty() && node2.getInputNodes().isEmpty()) ||
+                        (node1.getOutputNodes().isEmpty() && node2.getOutputNodes().isEmpty())) {
                     valid = false;
                     break;
                 }

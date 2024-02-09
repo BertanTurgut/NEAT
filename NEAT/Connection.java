@@ -13,10 +13,8 @@ public class Connection {
         this.outputNode = output;
         this.weight = weight;
         this.enabled = enabled;
-        if (this.enabled) {
-            input.addOutputNode(output);
-            output.addInputNode(input);
-        }
+        input.addOutputNode(output);
+        output.addInputNode(input);
     }
 
     public void feedOutputNode() {

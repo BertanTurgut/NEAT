@@ -16,6 +16,7 @@ public class Node {
         this.outputNodes = new ArrayList<>();
     }
 
+    // TODO: correct the stack overflow issue
     public void updateDepth() {
         if (this.inputNodes.isEmpty()) {
             this.depth = 0;
@@ -58,7 +59,11 @@ public class Node {
 
     public void addInputNode(Node node) {
         this.inputNodes.add(node);
-        this.updateDepth();
+        try {
+            this.updateDepth();
+        } catch (Exception e) {
+            throw new RuntimeException("! PROBLEM OCCURRED:\n" + this.inputNodes + "\n" + this.outputNodes);
+        }
     }
 
     public void removeInputNode(Node node) {
